@@ -1,0 +1,206 @@
+openapi: 3.0.3
+info:
+  title: Credits API
+  description: Microservicio de gestión de créditos
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8083/api/v1
+
+paths:
+
+  /credits:
+    get:
+      summary: Obtener todos los créditos activos
+      description: Devuelve únicamente créditos con estado ACTIVE.
+      operationId: getCredits
+      responses:
+        '200':
+          description: Lista de créditos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CreditResponse'
+
+    post:
+      summary: Crear un nuevo crédito
+      description: |
+        El número de crédito (`creditNumber`) lo asigna el sistema de forma única y correlativa.
+        El alta es siempre en estado ACTIVE; no envíe `creditNumber` ni `status` en el body.
+      operationId: createCredit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditCreateRequest'
+      responses:
+        '201':
+          description: Crédito creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditResponse'
+
+  /credits/{id}:
+    get:
+      summary: Obtener crédito por ID
+      description: Devuelve el crédito aunque su estado sea ACTIVE o INACTIVE (u otros).
+      operationId: getCreditById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Crédito encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditResponse'
+        '404':
+          description: Crédito no encontrado
+
+    put:
+      summary: Actualizar crédito
+      description: El número de crédito no se modifica desde el API; use solo los campos del body.
+      operationId: updateCredit
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditUpdateRequest'
+      responses:
+        '200':
+          description: Crédito actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditResponse'
+
+    delete:
+      summary: Baja lógica del crédito
+      description: No elimina el registro; establece el estado en INACTIVE.
+      operationId: deleteCredit
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Crédito dado de baja (INACTIVE)
+
+components:
+
+  schemas:
+
+    CreditCreateRequest:
+      type: object
+      required:
+        - customerId
+        - type
+        - creditLimit
+      properties:
+        customerId:
+          type: string
+        type:
+          type: string
+          enum:
+            - PERSONAL
+            - BUSINESS
+            - CREDIT_CARD
+        creditLimit:
+          type: number
+          format: double
+        availableBalance:
+          type: number
+          format: double
+        amountPaid:
+          type: number
+          format: double
+        interestRate:
+          type: number
+          format: double
+
+    CreditUpdateRequest:
+      type: object
+      required:
+        - customerId
+        - type
+        - creditLimit
+      properties:
+        customerId:
+          type: string
+        type:
+          type: string
+          enum:
+            - PERSONAL
+            - BUSINESS
+            - CREDIT_CARD
+        creditLimit:
+          type: number
+          format: double
+        availableBalance:
+          type: number
+          format: double
+        amountPaid:
+          type: number
+          format: double
+        status:
+          type: string
+          description: Opcional; si se omite se mantiene el valor actual.
+        interestRate:
+          type: number
+          format: double
+
+    CreditResponse:
+      type: object
+      required:
+        - customerId
+        - creditNumber
+        - type
+        - creditLimit
+      properties:
+        id:
+          type: string
+        customerId:
+          type: string
+        creditNumber:
+          type: string
+          description: Asignado por el sistema; único y correlativo
+        type:
+          type: string
+          enum:
+            - PERSONAL
+            - BUSINESS
+            - CREDIT_CARD
+        creditLimit:
+          type: number
+          format: double
+        availableBalance:
+          type: number
+          format: double
+        amountPaid:
+          type: number
+          format: double
+        status:
+          type: string
+        interestRate:
+          type: number
+          format: double
+        createdAt:
+          type: string
+          format: date-time
