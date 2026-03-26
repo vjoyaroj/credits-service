@@ -3,6 +3,10 @@
 ## Descripcion
 Microservicio de gestion de creditos.
 
+Diagrama de microservicos completo
+
+<img width="670" height="450" alt="image" src="https://github.com/user-attachments/assets/66e1f822-3110-4db5-bb85-2bad04884246" />
+
 ## Endpoints
 - `GET /api/v1/credits`
 - `POST /api/v1/credits`
